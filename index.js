@@ -1,10 +1,26 @@
 const express = require('express');
-const sequelize = require('./utlis/db')
+const sequelize = require('./utils/db')
+const sessions = require('express-session');
 
-const app = express()
+const User = require('./models/user');
+User.sync();
 
-app.use(express.json)
+const app = express();
+
+app.use(sessions({
+    secret: 'thisismysecretkey',
+    saveUninitialized: true,
+    cookie: { maxAge: 1000 * 60 * 60 * 24}, // 24h
+    resave: false 
+}));
+
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
+const usersRoutes = require('./routes/users');
+
+app.use('/users', usersRoutes);
 
 app.listen(3012, () => {
-    console.log('  server is connected')
-})
+    console.log('server is connected');
+});
